@@ -45,7 +45,7 @@ def get_baseline_score():
         csv_path = './Data/' + file_name
         labels_true = pd.read_csv(csv_path)['VID'].to_numpy()
         # labels_pred = predictor_baseline(csv_path)
-        labels_pred = predictorKMeans(csv_path, False,False)
+        labels_pred = predictorKMeans(csv_path, False)
         rand_index_score = adjusted_rand_score(labels_true, labels_pred)
         print(f'Adjusted Rand Index Baseline Score of {file_name}: {rand_index_score:.4f}')
 
@@ -53,7 +53,7 @@ def get_baseline_score():
 def evaluate():
     csv_path = './Data/set1-2.csv'
     labels_true = pd.read_csv(csv_path)['VID'].to_numpy()
-    labels_pred = predictorKMeans(csv_path, False,False)
+    labels_pred = predictorKMeans(csv_path, False,False,False)
     rand_index_score = adjusted_rand_score(labels_true, labels_pred)
     print(f'Adjusted Rand Index Score of set1-2.csv: {rand_index_score:.4f}')
 
@@ -91,7 +91,8 @@ def predictorKMeans(csv_path, plot_silhouette=True, plot_elbow=True, plot_cluste
     # Predict cluster numbers of each sample
     labels_pred = model.predict(X)
     
-    if plot_clusters:       
+    if plot_clusters:
+        # Showing the clusters that formed    
         colors = cm.nipy_spectral(labels_pred.astype(float) / K)
         plt.scatter(
             X[:, 0], X[:, 1], marker=".", s=30, lw=0, alpha=0.7, c=colors, edgecolor="k"
@@ -109,7 +110,7 @@ def predictorKMeans(csv_path, plot_silhouette=True, plot_elbow=True, plot_cluste
             s=200,
             edgecolor="k",
         )
-
+        # Number the individual cluster
         for i, c in enumerate(centers):
             plt.scatter(c[0], c[1], marker="$%d$" % i, alpha=1, s=50, edgecolor="k")
 
@@ -124,7 +125,7 @@ def predictorKMeans(csv_path, plot_silhouette=True, plot_elbow=True, plot_cluste
         sample_silhouette_values = silhouette_samples(X, labels_pred)
         
         y_lower = 10
-        ax = plt.subplots()
+        ax = plt.subplots() # Tried to make subplots but it got confusing so ignore this
         for i in range(K):
             # Aggregate the silhouette scores for samples belonging to cluster i, and sort them
             ith_cluster_silhouette_values = sample_silhouette_values[labels_pred == i]
@@ -155,7 +156,6 @@ def predictorKMeans(csv_path, plot_silhouette=True, plot_elbow=True, plot_cluste
         
         plt.show()
 
-    # visualize_clusters(csv_path)
 
     return labels_pred
 
@@ -169,13 +169,3 @@ if __name__=="__main__":
     evaluate()
 
 
-# def gridSearchAggloClus(trainX, testX, trainY, testY, paramGrid, k = 10):
-#     model = AgglomerativeClustering()
-
-#     grid_search = GridSearchCV(estimator=model, param_grid=paramGrid, cv=k)
-#     grid_search.fit(trainX, trainY)
-
-#     print("Best parameters:", grid_search.best_params_)
-#     best_model = grid_search.best_estimator_
-#     test_accuracy = best_model.score(testX, testY)
-#     print("Test set accuracy:", test_accuracy)
